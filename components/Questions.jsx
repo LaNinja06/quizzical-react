@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid"
 export default function Questions() {
   const [quiz, setQuiz] = useState([])
   const [showAnswers, setShowAnswers] = useState(false)
-  const [selectedAnswers, setSelectedAnswers] = useState([]);
+  const [selectedAnswers, setSelectedAnswers] = useState([])
   const [scores, setScores] = useState(0)
 
   const url = "https://opentdb.com/api.php?amount=5&category=9&type=multiple"
@@ -22,37 +22,40 @@ export default function Questions() {
   }
 
   useEffect(() => {
-    fetchQuestions();
-  }, []);
-  
-  // fetch quiz questions from the API 
-  async function fetchQuestions() {
-    const res = await fetch(url);
-    const data = await res.json();
-  
-    // Map the results from the fetched data to create an array of quiz questions
-    const results = data.results.map((result, index) => {
+    const fetchQuestions = async () => {
+      try {
+      const res = await fetch(url)
+      const data = await res.json()
+
+      // Map the results from the fetched data to create an array of quiz questions
+      const results = data.results.map((result, index) => {
+      
       // Map the incorrect answers from the result to create an array of answer objects
       const answers = result.incorrect_answers.map(answer => {
         // Create an answer object using the extendAnswerObj function with isCorrect set to false
-        return extendAnswerObj(answer, false);
+        return extendAnswerObj(answer, false)
       });
-  
+      
       // Create an answer object for the correct answer and push it to the answers array
-      answers.push(extendAnswerObj(result.correct_answer, true));
-  
+        answers.push(extendAnswerObj(result.correct_answer, true))
+
       // Shuffle the answers array randomly
-      answers.sort(() => 0.5 - Math.random());
-  
+      answers.sort(() => 0.5 - Math.random())
+    
       // Return an object representing a quiz question with its id, question, and answers
-      return {
-        id: uuidv4(),
-        question: result.question,
-        answers: answers
-      };
-    });
-    setQuiz(results);
-  }
+        return {
+          id: uuidv4(),
+          question: result.question,
+          answers: answers
+        }
+      })
+      setQuiz(results)
+    } catch (error) {
+      console.log(error)
+    }
+}
+  fetchQuestions()
+}, [])
 
 
   // handles the selected answers  
@@ -61,8 +64,8 @@ export default function Questions() {
       // Create a new array by spreading the previous selected answers
       const updatedSelectedAnswers = [...prevSelectedAnswers];
       // Update the selected answer for the specific question index
-      updatedSelectedAnswers[questionIndex] = selectedAnswerIndex;
-      return updatedSelectedAnswers;
+      updatedSelectedAnswers[questionIndex] = selectedAnswerIndex
+      return updatedSelectedAnswers
     });
   }
 
@@ -76,12 +79,12 @@ export default function Questions() {
         // Check if the selected answer is correct
         if (quiz[index].answers[answerIndex].isCorrect) {
           // Increment the total score by 1 if the answer is correct
-          return totalScore + 1;
+          return totalScore + 1
         }
       }
-      return totalScore;
-    }, 0);
-    setScores(score);
+      return totalScore
+    }, 0)
+    setScores(score)
   } 
 
   // resets the quiz app to play again
